@@ -57,6 +57,8 @@ DEPFILES=$(OBJ:%.o=%.d)
 clean:
 	rm -f $(OBJ)
 	rm -f $(DEPFILES)
+	rm -f cannonball.bin
+	rm -f cannonball.elf
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
