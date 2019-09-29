@@ -50,6 +50,13 @@ OBJ= \
 	src/main/engine/oanimseq.o \
 	src/main/dc_main.o
 
+DEPFILES=$(OBJ:%.o=%.d)
+
+-include $(DEPFILES)
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
+
 cannonball.elf: $(OBJ)
 	$(CXX) -o $@ $^
 
