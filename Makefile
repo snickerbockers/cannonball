@@ -54,6 +54,10 @@ DEPFILES=$(OBJ:%.o=%.d)
 
 -include $(DEPFILES)
 
+clean:
+	rm -f $(OBJ)
+	rm -f $(DEPFILES)
+
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
 
