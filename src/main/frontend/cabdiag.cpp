@@ -16,7 +16,9 @@
 
 #include "cabdiag.hpp"
 
-#ifdef SDL2
+#ifdef DREAMCAST
+#include "dreamcast/input.hpp"
+#elif defined SDL2
 #include "sdl2/input.hpp"
 #else
 #include "sdl/input.hpp"

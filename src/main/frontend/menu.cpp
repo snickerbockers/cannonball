@@ -6,9 +6,6 @@
     See license.txt for more details.
 ***************************************************************************/
 
-// Boost string prediction
-#include <boost/algorithm/string/predicate.hpp>
-
 #include "main.hpp"
 #include "menu.hpp"
 #include "setup.hpp"
@@ -433,7 +430,14 @@ void Menu::draw_text(std::string s)
     ohud.blit_text_new(x, y, s.c_str(), ohud.GREEN);
 }
 
-#define SELECTED(string) boost::starts_with(OPTION, string)
+static bool my_starts_with(char const *pred, char const *str) {
+    while (*pred)
+        if (*str++ != *pred++)
+            return false;
+    return true;
+}
+
+#define SELECTED(string) my_starts_with(OPTION, string)
 
 void Menu::tick_menu()
 {
