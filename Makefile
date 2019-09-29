@@ -48,7 +48,10 @@ OBJ= \
 	src/main/engine/oinitengine.o \
 	src/main/engine/omap.o \
 	src/main/engine/oanimseq.o \
-	src/main/dc_main.o
+	src/main/dc_main.o \
+	src/main/cannonboard/interface.o \
+	src/main/dreamcast/input.o \
+	src/main/directx/ffeedback.o
 
 DEPFILES=$(OBJ:%.o=%.d)
 
@@ -64,7 +67,7 @@ clean:
 	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
 
 cannonball.elf: $(OBJ)
-	$(CXX) -o $@ $^
+	$(CXX) $(LDFLAGS) -o $@ $^ -lm
 
 cannonball.bin: cannonball.elf
 	sh-elf-objcopy -O binary $< $@
