@@ -13,6 +13,8 @@
 #include <cstddef>       // for std::size_t
 #include <boost/crc.hpp> // CRC Checking via Boost library.
 
+#include <kos.h>
+
 #include "stdint.hpp"
 #include "romloader.hpp"
 
@@ -57,13 +59,12 @@ int RomLoader::load(const char* filename, const int offset, const int length, co
     chdir(bundlepath);
 #endif
 
-    std::string path = "roms/";
+    std::string path = "/cd/outrun/";
     path += std::string(filename);
 
-    // Open rom file
-    std::ifstream src(path.c_str(), std::ios::in | std::ios::binary);
-    if (!src)
-    {
+    // // Open rom file
+    file_t src = fs_open(path.c_str(), O_RDONLY);
+    if (src == 0) {
         std::cout << "cannot open rom: " << filename << std::endl;
         loaded = false;
         return 1; // fail
@@ -71,11 +72,11 @@ int RomLoader::load(const char* filename, const int offset, const int length, co
 
     // Read file
     char* buffer = new char[length];
-    src.read(buffer, length);
+    int gcount = fs_read(src, buffer, length);
 
     // Check CRC on file
     boost::crc_32_type result;
-    result.process_bytes(buffer, (size_t) src.gcount());
+    result.process_bytes(buffer, (size_t) gcount);
 
     if (expected_crc != result.checksum())
     {
@@ -91,7 +92,7 @@ int RomLoader::load(const char* filename, const int offset, const int length, co
 
     // Clean Up
     delete[] buffer;
-    src.close();
+    fs_close(src);
     loaded = true;
     return 0; // success
 }
