@@ -12,8 +12,7 @@
 #include <fstream>
 #include <cstddef>       // for std::size_t
 #include <boost/crc.hpp> // CRC Checking via Boost library.
-
-#include <kos.h>
+#include <algorithm>
 
 #include "stdint.hpp"
 #include "romloader.hpp"
@@ -62,9 +61,18 @@ int RomLoader::load(const char* filename, const int offset, const int length, co
     std::string path = "/cd/outrun/";
     path += std::string(filename);
 
-    // // Open rom file
-    file_t src = fs_open(path.c_str(), O_RDONLY);
-    if (src == 0) {
+    // Open rom file
+    std::ifstream src(path.c_str(), std::ios::in | std::ios::binary);
+    if (!src) {
+        /*
+         * some versions of iso9660 dont allow '-' in file names,
+         * so try an underscore instead.
+         */
+        std::replace(path.begin(), path.end(), '-', '_');
+        src.open(path.c_str(), std::ios::in | std::ios::binary);
+    }
+    if (!src)
+    {
         std::cout << "cannot open rom: " << filename << std::endl;
         loaded = false;
         return 1; // fail
@@ -72,11 +80,11 @@ int RomLoader::load(const char* filename, const int offset, const int length, co
 
     // Read file
     char* buffer = new char[length];
-    int gcount = fs_read(src, buffer, length);
+    src.read(buffer, length);
 
     // Check CRC on file
     boost::crc_32_type result;
-    result.process_bytes(buffer, (size_t) gcount);
+    result.process_bytes(buffer, (size_t) src.gcount());
 
     if (expected_crc != result.checksum())
     {
@@ -92,7 +100,7 @@ int RomLoader::load(const char* filename, const int offset, const int length, co
 
     // Clean Up
     delete[] buffer;
-    fs_close(src);
+    src.close();
     loaded = true;
     return 0; // success
 }
